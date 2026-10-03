@@ -1,0 +1,415 @@
+import { useState } from 'react';
+import {
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Header } from '@/components/ui/Header';
+import { DetailRow } from '@/components/taptignan/DetailRow';
+import { FindingItem } from '@/components/taptignan/FindingItem';
+import { StatusBadge } from '@/components/taptignan/StatusBadge';
+import { COPY } from '@/data/copy';
+import { usePaymentStore } from '@/features/payment/usePaymentStore';
+
+export default function ResultScreen() {
+  const router = useRouter();
+  const { currentRequest, checkResult, status, completePayment, cancelPayment } =
+    usePaymentStore();
+  const [showOverrideModal, setShowOverrideModal] = useState(false);
+
+  // Gate enforcement (FR-05)
+  if (!currentRequest || !checkResult || status !== 'checked') {
+    router.replace('/(tabs)');
+    return null;
+  }
+
+  const isSafe = checkResult.verdict === 'safe';
+
+  const handleContinuePayment = () => {
+    completePayment();
+    router.replace('/pay/success');
+  };
+
+  const handleCancelPayment = () => {
+    cancelPayment();
+    router.replace('/pay/cancelled');
+  };
+
+  const handleReport = () => {
+    router.push('/report/reason');
+  };
+
+  const handleProceedOverride = () => {
+    setShowOverrideModal(false);
+    completePayment();
+    router.replace('/pay/success');
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <Header
+        title="Verification Result"
+        onBack={isSafe ? handleCancelPayment : undefined}
+        showBack={isSafe}
+      />
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Verdict Hero Banner (FR-07: icon + color + text, never color alone) */}
+        <View style={[styles.verdictHero, isSafe ? styles.heroSafe : styles.heroSuspicious]}>
+          <View style={styles.verdictTopRow}>
+            <View
+              style={[
+                styles.verdictIconWrap,
+                isSafe ? styles.iconWrapSafe : styles.iconWrapSuspicious,
+              ]}
+            >
+              <Ionicons
+                name={isSafe ? 'shield-checkmark' : 'alert-circle'}
+                size={34}
+                color={isSafe ? '#16a34a' : '#dc2626'}
+              />
+            </View>
+            <View style={styles.verdictHeaderWrap}>
+              <StatusBadge type={isSafe ? 'safe' : 'suspicious'} size="lg" />
+              <Text style={styles.verdictTitle}>
+                {isSafe ? COPY.result.safeTitle : COPY.result.suspiciousTitle}
+              </Text>
+            </View>
+          </View>
+
+          <Text style={styles.verdictSubtitle}>
+            {isSafe ? COPY.result.safeSubtitle : COPY.result.suspiciousSubtitle}
+          </Text>
+
+          <Text style={styles.verdictNotice}>
+            {isSafe ? COPY.result.safeNotice : COPY.result.suspiciousNotice}
+          </Text>
+        </View>
+
+        {/* Transaction Summary Card */}
+        <Card style={styles.summaryCard}>
+          <Text style={styles.cardSectionTitle}>Transaction Details</Text>
+          <DetailRow
+            label="Intended Merchant"
+            value={currentRequest.merchantName}
+            bold
+          />
+          <DetailRow
+            label="Actual Recipient"
+            value={currentRequest.recipientName}
+            valueColor={
+              !isSafe &&
+              currentRequest.merchantName.toLowerCase() !==
+                currentRequest.recipientName.toLowerCase()
+                ? '#dc2626'
+                : undefined
+            }
+            bold
+          />
+          <DetailRow
+            label="Amount"
+            value={`₱ ${currentRequest.amount.toFixed(2)}`}
+            highlight
+          />
+        </Card>
+
+        {/* Findings Section (FR-08) */}
+        <View style={styles.findingsSection}>
+          <Text style={styles.findingsHeader}>
+            {COPY.result.findingsHeader} ({checkResult.findings.length})
+          </Text>
+          <Text style={styles.findingsSubheader}>
+            Plain-language verification breakdown:
+          </Text>
+
+          {checkResult.findings.map((finding) => (
+            <FindingItem key={finding.ruleId} finding={finding} />
+          ))}
+        </View>
+
+        {/* False positive option (FR-16) */}
+        {!isSafe && (
+          <TouchableOpacity
+            style={styles.incorrectFlagLink}
+            onPress={() => router.push('/report/incorrect')}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="help-circle-outline" size={16} color="#64748b" />
+            <Text style={styles.incorrectFlagText}>
+              Is this a legitimate merchant? Report incorrect flagging
+            </Text>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+
+      {/* Action Footer (FR-09 / FR-10) */}
+      <View style={styles.footer}>
+        {isSafe ? (
+          <>
+            <Button
+              title={COPY.result.ctaPay}
+              variant="primary"
+              size="lg"
+              onPress={handleContinuePayment}
+              style={styles.fullBtn}
+            />
+            <Button
+              title="Report Transaction"
+              variant="ghost"
+              size="md"
+              onPress={handleReport}
+            />
+          </>
+        ) : (
+          <>
+            {/* The secure path is the prominent path (Principle 4) */}
+            <Button
+              title={COPY.result.ctaCancel}
+              variant="danger"
+              size="lg"
+              onPress={handleCancelPayment}
+              style={styles.fullBtn}
+            />
+            <View style={styles.suspiciousSecondaryRow}>
+              <Button
+                title={COPY.result.ctaReport}
+                variant="outline"
+                size="md"
+                onPress={handleReport}
+                style={styles.halfBtn}
+              />
+              <Button
+                title="Proceed Anyway"
+                variant="ghost"
+                size="md"
+                onPress={() => setShowOverrideModal(true)}
+                style={styles.halfBtn}
+              />
+            </View>
+          </>
+        )}
+      </View>
+
+      {/* Decision D-1: Extra confirmation modal before proceeding with Suspicious */}
+      <Modal
+        visible={showOverrideModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowOverrideModal(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <Card style={styles.modalCard}>
+            <View style={styles.modalIconWrap}>
+              <Ionicons name="warning" size={40} color="#dc2626" />
+            </View>
+            <Text style={styles.modalTitle}>{COPY.result.proceedWarningTitle}</Text>
+            <Text style={styles.modalBody}>{COPY.result.proceedWarningText}</Text>
+            <Text style={styles.modalHighlight}>
+              Recipient: {currentRequest.recipientName} (
+              {currentRequest.merchantName})
+            </Text>
+
+            <View style={styles.modalActions}>
+              <Button
+                title="Cancel & Keep Funds Safe"
+                variant="secondary"
+                size="md"
+                onPress={() => setShowOverrideModal(false)}
+                style={styles.fullBtn}
+              />
+              <Button
+                title={COPY.result.proceedConfirm}
+                variant="danger"
+                size="md"
+                onPress={handleProceedOverride}
+                style={[styles.fullBtn, { marginTop: 8 }]}
+              />
+            </View>
+          </Card>
+        </View>
+      </Modal>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f1f8ff',
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 28,
+  },
+  verdictHero: {
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
+    borderWidth: 1.5,
+  },
+  heroSafe: {
+    backgroundColor: '#f0fdf4',
+    borderColor: '#86efac',
+  },
+  heroSuspicious: {
+    backgroundColor: '#fff5f5',
+    borderColor: '#fca5a5',
+  },
+  verdictTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  verdictIconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconWrapSafe: {
+    backgroundColor: '#dcfce7',
+  },
+  iconWrapSuspicious: {
+    backgroundColor: '#fee2e2',
+  },
+  verdictHeaderWrap: {
+    flex: 1,
+    gap: 4,
+  },
+  verdictTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0a1e4a',
+  },
+  verdictSubtitle: {
+    fontSize: 13.5,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginTop: 10,
+  },
+  verdictNotice: {
+    fontSize: 12.5,
+    color: '#475569',
+    marginTop: 4,
+    lineHeight: 18,
+  },
+  summaryCard: {
+    padding: 16,
+    marginBottom: 16,
+  },
+  cardSectionTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0a1e4a',
+    marginBottom: 6,
+  },
+  findingsSection: {
+    marginBottom: 14,
+  },
+  findingsHeader: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0a1e4a',
+  },
+  findingsSubheader: {
+    fontSize: 12,
+    color: '#64748b',
+    marginBottom: 12,
+    marginTop: 2,
+  },
+  incorrectFlagLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+  },
+  incorrectFlagText: {
+    fontSize: 12,
+    color: '#64748b',
+    textDecorationLine: 'underline',
+  },
+  footer: {
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 24,
+    borderTopWidth: 1,
+    borderTopColor: '#eef3f8',
+    gap: 8,
+  },
+  fullBtn: {
+    width: '100%',
+  },
+  suspiciousSecondaryRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  halfBtn: {
+    flex: 1,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(10, 30, 74, 0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    padding: 22,
+    alignItems: 'center',
+    borderRadius: 20,
+  },
+  modalIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#fee2e2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+  },
+  modalTitle: {
+    fontSize: 19,
+    fontWeight: '800',
+    color: '#dc2626',
+    textAlign: 'center',
+  },
+  modalBody: {
+    fontSize: 13,
+    color: '#475569',
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 18,
+  },
+  modalHighlight: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0a1e4a',
+    backgroundColor: '#f1f5f9',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 12,
+    textAlign: 'center',
+  },
+  modalActions: {
+    width: '100%',
+    marginTop: 18,
+  },
+});
