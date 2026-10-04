@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Dimensions,
   Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { ProtectionBanner } from '@/components/taptignan/ProtectionBanner';
@@ -82,7 +82,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor="#f1f8ff" />
 
       <ScrollView
@@ -128,7 +128,7 @@ export default function HomeScreen() {
             <View style={styles.balanceAmountRow}>
               <Text style={styles.pesoSymbol}>₱</Text>
               <Text style={styles.balanceNumber}>
-                {isBalanceVisible ? '50.13' : '••••••'}
+                {isBalanceVisible ? '100,367' : '••••••'}
               </Text>
             </View>
 

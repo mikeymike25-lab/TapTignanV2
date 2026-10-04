@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
@@ -11,10 +11,10 @@ export function ProtectionBanner() {
     <View style={styles.container}>
       <View style={styles.left}>
         <View style={[styles.iconWrap, !protectionEnabled && styles.iconWrapDisabled]}>
-          <Ionicons
-            name={protectionEnabled ? 'shield-checkmark' : 'shield-outline'}
-            size={22}
-            color={protectionEnabled ? '#0073f6' : '#94a3b8'}
+          <Image
+            source={require('@/../assets/logos/taptignan-inspect-qr.png')}
+            style={[styles.bannerLogo, !protectionEnabled && styles.bannerLogoDisabled]}
+            resizeMode="contain"
           />
         </View>
         <View style={styles.textWrap}>
@@ -77,6 +77,14 @@ const styles = StyleSheet.create({
   },
   iconWrapDisabled: {
     backgroundColor: '#f1f5f9',
+  },
+  bannerLogo: {
+    width: 26,
+    height: 26,
+    borderRadius: 5,
+  },
+  bannerLogoDisabled: {
+    opacity: 0.35,
   },
   textWrap: {
     flex: 1,

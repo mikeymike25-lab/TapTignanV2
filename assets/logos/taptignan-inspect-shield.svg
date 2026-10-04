@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Subtle gradient for shield -->
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0080FF" />
+      <stop offset="100%" stop-color="#0056C6" />
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22C55E" />
+      <stop offset="100%" stop-color="#15803D" />
+    </linearGradient>
+  </defs>
+
+  <!-- QR Viewfinder Corners (Green) -->
+  <g stroke="url(#greenGrad)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Top Left -->
+    <path d="M 70 140 L 70 85 A 15 15 0 0 1 85 70 L 140 70" />
+    <!-- Top Right -->
+    <path d="M 372 70 L 427 70 A 15 15 0 0 1 442 85 L 442 140" />
+    <!-- Bottom Left -->
+    <path d="M 70 372 L 70 427 A 15 15 0 0 0 85 442 L 140 442" />
+    <!-- Bottom Right -->
+    <path d="M 372 442 L 427 442 A 15 15 0 0 0 442 427 L 442 372" />
+  </g>
+
+  <!-- Central Security Shield (Blue) -->
+  <path d="M 256 95
+           C 310 115 375 118 395 125
+           C 395 240 370 340 256 405
+           C 142 340 117 240 117 125
+           C 137 118 202 115 256 95 Z"
+        fill="#FFFFFF"
+        stroke="url(#shieldGrad)"
+        stroke-width="26"
+        stroke-linejoin="round"
+        stroke-linecap="round" />
+
+  <!-- Inspection Eye Outer Contours ("Tignan") -->
+  <path d="M 160 256 C 190 200 322 200 352 256"
+        fill="none"
+        stroke="url(#shieldGrad)"
+        stroke-width="20"
+        stroke-linecap="round" />
+  <path d="M 160 256 C 190 312 322 312 352 256"
+        fill="none"
+        stroke="url(#shieldGrad)"
+        stroke-width="20"
+        stroke-linecap="round" />
+
+  <!-- Verification Pupil / Iris (Green) -->
+  <circle cx="256" cy="256" r="38" fill="url(#greenGrad)" />
+  <!-- Specular Light Reflection -->
+  <circle cx="244" cy="244" r="11" fill="#FFFFFF" opacity="0.9" />
+</svg>

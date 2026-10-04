@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
-  SafeAreaView,
+  Image,
   StatusBar,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui/Card';
@@ -92,7 +93,7 @@ export default function CheckScreen() {
   if (!currentRequest) return null;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor="#f1f8ff" />
 
       <View style={styles.content}>
@@ -101,7 +102,11 @@ export default function CheckScreen() {
           style={[styles.shieldOuter, { transform: [{ scale: pulseAnim }] }]}
         >
           <View style={styles.shieldInner}>
-            <Ionicons name="shield-checkmark" size={54} color="#0073f6" />
+            <Image
+              source={require('@/../assets/logos/taptignan-inspect-qr.png')}
+              style={styles.shieldLogo}
+              resizeMode="contain"
+            />
           </View>
         </Animated.View>
 
@@ -181,9 +186,16 @@ export default function CheckScreen() {
           </View>
         </Card>
 
-        <Text style={styles.securityFooterNote}>
-          Powered by TapTignan Usable Security Engine
-        </Text>
+        <View style={styles.footerNoteRow}>
+          <Image
+            source={require('@/../assets/logos/taptignan-inspect-qr.png')}
+            style={styles.footerLogo}
+            resizeMode="contain"
+          />
+          <Text style={styles.securityFooterNote}>
+            Powered by TapTignan Usable Security Engine
+          </Text>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -220,6 +232,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 10,
     elevation: 4,
+  },
+  shieldLogo: {
+    width: 52,
+    height: 52,
   },
   title: {
     fontSize: 22,

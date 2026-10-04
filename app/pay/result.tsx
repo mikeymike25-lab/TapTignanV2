@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -9,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/ui/Button';
@@ -26,17 +26,22 @@ export default function ResultScreen() {
     usePaymentStore();
   const [showOverrideModal, setShowOverrideModal] = useState(false);
 
-  // Gate enforcement (FR-05)
+  // Gate enforcement (FR-05) - run inside effect to avoid navigating during render
+  useEffect(() => {
+    if (!currentRequest || !checkResult || status !== 'checked') {
+      router.replace('/(tabs)');
+    }
+  }, [currentRequest, checkResult, status, router]);
+
   if (!currentRequest || !checkResult || status !== 'checked') {
-    router.replace('/(tabs)');
     return null;
   }
 
   const isSafe = checkResult.verdict === 'safe';
 
   const handleContinuePayment = () => {
-    completePayment();
-    router.replace('/pay/success');
+    const tx = completePayment();
+    router.replace(tx ? { pathname: '/pay/receipt', params: { txId: tx.id } } : '/pay/receipt');
   };
 
   const handleCancelPayment = () => {
@@ -50,12 +55,12 @@ export default function ResultScreen() {
 
   const handleProceedOverride = () => {
     setShowOverrideModal(false);
-    completePayment();
-    router.replace('/pay/success');
+    const tx = completePayment();
+    router.replace(tx ? { pathname: '/pay/receipt', params: { txId: tx.id } } : '/pay/receipt');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       <Header
         title="Verification Result"

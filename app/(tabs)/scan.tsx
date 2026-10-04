@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Dimensions,
   Image,
   Modal,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
@@ -47,7 +47,7 @@ export default function ScanScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor="#0073f6" />
 
       {/* GCash Blue Header */}
@@ -115,6 +115,24 @@ export default function ScanScreen() {
             </View>
           </View>
         </View>
+
+        {/* Powered by TapTignan Pre-Payment Security Badge */}
+        <TouchableOpacity
+          style={styles.poweredByPill}
+          onPress={() => setShowInfoModal(true)}
+          activeOpacity={0.8}
+        >
+          <Image
+            source={require('../../assets/logos/taptignan-inspect-qr.png')}
+            style={styles.poweredByLogo}
+            resizeMode="contain"
+          />
+          <View style={styles.poweredByTextGroup}>
+            <Text style={styles.poweredByTitle}>POWERED BY TAPTIGNAN</Text>
+            <Text style={styles.poweredBySubtitle}>Active Pre-Payment Verification</Text>
+          </View>
+          <Ionicons name="information-circle-outline" size={16} color="#93c5fd" />
+        </TouchableOpacity>
 
         {/* Simulate Scan Icons (No big container - just sleek clickable icons) */}
         <View style={styles.simulateIconsRow}>
@@ -201,7 +219,11 @@ export default function ScanScreen() {
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
-              <Ionicons name="shield-checkmark" size={28} color="#0073f6" />
+              <Image
+                source={require('../../assets/logos/taptignan-inspect-qr.png')}
+                style={styles.modalHeaderLogo}
+                resizeMode="contain"
+              />
               <Text style={styles.modalTitle}>TapTignan QR Reader</Text>
             </View>
             <Text style={styles.modalText}>
@@ -438,6 +460,40 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
 
+  /* Powered by TapTignan Badge */
+  poweredByPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 115, 246, 0.35)',
+    borderRadius: 24,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    marginTop: 6,
+    marginBottom: 6,
+    gap: 10,
+  },
+  poweredByLogo: {
+    width: 26,
+    height: 26,
+    borderRadius: 6,
+  },
+  poweredByTextGroup: {
+    justifyContent: 'center',
+  },
+  poweredByTitle: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+  },
+  poweredBySubtitle: {
+    color: '#93c5fd',
+    fontSize: 9.5,
+    fontWeight: '600',
+  },
+
   /* Simulate Scan Icons (No big container) */
   simulateIconsRow: {
     flexDirection: 'row',
@@ -534,6 +590,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginBottom: 12,
+  },
+  modalHeaderLogo: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
   },
   modalTitle: {
     fontSize: 18,

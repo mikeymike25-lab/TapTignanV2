@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="monoBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0080FF" />
+      <stop offset="100%" stop-color="#0056C6" />
+    </linearGradient>
+    <linearGradient id="monoGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22C55E" />
+      <stop offset="100%" stop-color="#15803D" />
+    </linearGradient>
+  </defs>
+
+  <!-- Left Wing / 'T' for TAP (Electric Blue) -->
+  <path d="M 244 80
+           L 155 98
+           C 142 185 142 270 244 345
+           L 244 220
+           L 190 220
+           L 190 170
+           L 244 170
+           Z"
+        fill="url(#monoBlue)" />
+
+  <path d="M 155 98
+           L 244 80
+           L 244 135
+           L 165 135
+           Z"
+        fill="url(#monoBlue)" />
+
+  <!-- Right Wing / 'T' with Checkmark for TIGNAN (Emerald Green) -->
+  <path d="M 268 80
+           L 357 98
+           L 357 135
+           L 268 135
+           Z"
+        fill="url(#monoGreen)" />
+
+  <path d="M 268 80
+           L 357 98
+           C 357 205 320 280 268 345
+           L 268 250
+           L 320 195
+           L 295 170
+           L 268 200
+           Z"
+        fill="url(#monoGreen)" />
+
+  <!-- Verification Checkmark Base -->
+  <path d="M 268 350
+           L 220 300
+           L 235 285
+           L 268 318
+           L 345 235
+           L 360 250
+           Z"
+        fill="url(#monoGreen)" />
+
+  <!-- Typography Wordmark: TAP TIGNAN -->
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">
+    <text x="256" y="425" font-size="34" font-weight="800" letter-spacing="4" fill="#0A1E4A">
+      <tspan fill="#0073F6">TAP</tspan>
+      <tspan fill="#0A1E4A"> </tspan>
+      <tspan fill="#16A34A">TIGNAN</tspan>
+    </text>
+    <text x="256" y="455" font-size="12" font-weight="700" letter-spacing="2" fill="#64748B">
+      PRE-PAYMENT SECURITY
+    </text>
+  </g>
+</svg>

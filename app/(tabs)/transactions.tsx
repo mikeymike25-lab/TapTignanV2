@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -9,6 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/taptignan/StatusBadge';
@@ -18,6 +19,7 @@ import { useReportStore } from '@/features/reports/useReportStore';
 import { Report } from '@/types';
 
 export default function TransactionsScreen() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'reports' | 'payments'>('reports');
   const { reports, resolveReport } = useReportStore();
   const { transactions } = usePaymentStore();
@@ -39,7 +41,7 @@ export default function TransactionsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
       {/* Screen Title */}
@@ -137,45 +139,67 @@ export default function TransactionsScreen() {
         ) : transactions.length === 0 ? (
           <View style={styles.emptyState}>
             <View style={styles.emptyIconCircle}>
-              <Ionicons name="receipt-outline" size={44} color="#94a3b8" />
+              <Ionicons name="receipt-outline" size={44} color="#0073f6" />
             </View>
             <Text style={styles.emptyTitle}>No Transactions Yet</Text>
             <Text style={styles.emptySubtitle}>
               Completed and protected QR payments will appear here in your transaction record.
             </Text>
+            <TouchableOpacity
+              style={styles.sampleReceiptBtn}
+              onPress={() => router.push('/pay/receipt')}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="receipt-outline" size={16} color="#0073f6" />
+              <Text style={styles.sampleReceiptBtnText}>View Sample GCash Receipt</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.list}>
             {transactions.map((tx) => {
               const isPaid = tx.outcome === 'paid';
               return (
-                <Card key={tx.id} style={styles.txCard}>
-                  <View style={styles.txTop}>
-                    <View style={styles.txLeft}>
-                      <Text style={styles.txMerchant}>{tx.payment.merchantName}</Text>
-                      <Text style={styles.txRef}>{tx.id}</Text>
+                <TouchableOpacity
+                  key={tx.id}
+                  activeOpacity={0.8}
+                  onPress={() => isPaid && router.push({ pathname: '/pay/receipt', params: { txId: tx.id } })}
+                >
+                  <Card style={styles.txCard}>
+                    <View style={styles.txTop}>
+                      <View style={styles.txLeft}>
+                        <Text style={styles.txMerchant}>{tx.payment.merchantName}</Text>
+                        <Text style={styles.txRef}>{tx.id}</Text>
+                      </View>
+                      <View style={styles.txRight}>
+                        <Text style={[styles.txAmount, !isPaid && styles.txAmountCancelled]}>
+                          ₱ {tx.payment.amount.toFixed(2)}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.txStatusBadge,
+                            isPaid ? styles.statusPaid : styles.statusCancelled,
+                          ]}
+                        >
+                          {isPaid ? 'Completed' : 'Cancelled'}
+                        </Text>
+                      </View>
                     </View>
-                    <View style={styles.txRight}>
-                      <Text style={[styles.txAmount, !isPaid && styles.txAmountCancelled]}>
-                        ₱ {tx.payment.amount.toFixed(2)}
+                    <View style={styles.txBottomRow}>
+                      <Text style={styles.txDate}>
+                        {new Date(tx.completedAt).toLocaleString('en-PH', {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        })}
                       </Text>
-                      <Text
-                        style={[
-                          styles.txStatusBadge,
-                          isPaid ? styles.statusPaid : styles.statusCancelled,
-                        ]}
-                      >
-                        {isPaid ? 'Completed' : 'Cancelled'}
-                      </Text>
+                      {isPaid && (
+                        <View style={styles.viewReceiptLink}>
+                          <Text style={styles.viewReceiptLinkText}>View Receipt</Text>
+                          <Ionicons name="chevron-forward" size={14} color="#0073f6" />
+                        </View>
+                      )}
                     </View>
-                  </View>
-                  <Text style={styles.txDate}>
-                    {new Date(tx.completedAt).toLocaleString('en-PH', {
-                      dateStyle: 'medium',
-                      timeStyle: 'short',
-                    })}
-                  </Text>
-                </Card>
+                  </Card>
+                </TouchableOpacity>
               );
             })}
           </View>
@@ -368,5 +392,38 @@ const styles = StyleSheet.create({
   txDate: {
     fontSize: 11,
     color: '#94a3b8',
+  },
+  sampleReceiptBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#eaf3ff',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginTop: 14,
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+  },
+  sampleReceiptBtnText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0073f6',
+  },
+  txBottomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 6,
+  },
+  viewReceiptLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  viewReceiptLinkText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0073f6',
   },
 });
