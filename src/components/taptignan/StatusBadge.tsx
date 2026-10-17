@@ -18,6 +18,13 @@ export function StatusBadge({ type, size = 'md' }: StatusBadgeProps) {
       bg: '#dcfce7',
       border: '#86efac',
     },
+    caution: {
+      label: 'Caution',
+      icon: 'warning',
+      color: '#d97706',
+      bg: '#fef3c7',
+      border: '#fde68a',
+    },
     suspicious: {
       label: 'Suspicious',
       icon: 'alert-circle',

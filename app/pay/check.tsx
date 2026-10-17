@@ -289,10 +289,20 @@ const styles = StyleSheet.create({
     marginTop: 2,
     lineHeight: 16,
   },
+  footerNoteRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 24,
+  },
+  footerLogo: {
+    width: 18,
+    height: 18,
+  },
   securityFooterNote: {
     fontSize: 11.5,
     color: '#94a3b8',
-    marginTop: 24,
     fontWeight: '600',
   },
 });

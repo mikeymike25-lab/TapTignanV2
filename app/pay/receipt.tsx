@@ -219,6 +219,15 @@ export default function ReceiptScreen() {
           >
             <Text style={styles.doneBtnText}>Done</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.reportReceiptBtn}
+            onPress={() => router.push('/report/reason')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="flag-outline" size={16} color="#ffffff" />
+            <Text style={styles.reportReceiptBtnText}>Report Suspicious Transaction</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -485,5 +494,19 @@ const styles = StyleSheet.create({
     color: '#0073f6',
     fontSize: 16,
     fontWeight: '800',
+  },
+  reportReceiptBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    marginTop: 4,
+  },
+  reportReceiptBtnText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
   },
 });

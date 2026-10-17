@@ -134,7 +134,7 @@ describe('evaluatePayment (Security Engine)', () => {
     expect(r03?.passed).toBe(false);
   });
 
-  it('fails R-04 and flags SUSPICIOUS when recipient is a personal account', () => {
+  it('flags CAUTION (micro-merchant) when recipient is a valid personal GCash account with matching name', () => {
     const request = createMockRequest({
       recipientName: 'Juan Dela Cruz',
       merchantName: 'Juan Dela Cruz',
@@ -152,9 +152,33 @@ describe('evaluatePayment (Security Engine)', () => {
       reportedQrs: [],
     });
 
-    expect(result.verdict).toBe('suspicious');
+    expect(result.verdict).toBe('caution');
     const r04 = result.findings.find((f) => f.ruleId === 'R-04');
     expect(r04?.passed).toBe(false);
+  });
+
+  it('flags SUSPICIOUS (not caution) if a personal account is used in a name mismatch quishing attempt', () => {
+    const request = createMockRequest({
+      recipientName: 'Cafe Manila',
+      merchantName: 'Cafe Manila',
+      amount: 650,
+      qr: {
+        raw: 'TAPTIGNAN:PAY:ACC-9999:Cafe Manila:650',
+        accountId: 'ACC-9999', // ACC-9999 is Juan Dela Cruz in registry
+        merchantName: 'Cafe Manila',
+        containsUrl: false,
+      },
+    });
+
+    const result = evaluatePayment(request, {
+      registry: mockRegistry,
+      reportedQrs: [],
+    });
+
+    // Name mismatch (R-03) has high severity failure => overrides to Suspicious
+    expect(result.verdict).toBe('suspicious');
+    const r03 = result.findings.find((f) => f.ruleId === 'R-03');
+    expect(r03?.passed).toBe(false);
   });
 
   it('fails R-05 and flags SUSPICIOUS when QR or account was previously reported', () => {

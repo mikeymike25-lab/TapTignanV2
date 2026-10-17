@@ -1,6 +1,6 @@
-The MIT License (MIT)
+MIT License (Educational & Academic Prototype)
 
-Copyright (c) 2015-present 650 Industries, Inc. (aka Expo)
+Copyright (c) 2026 Group 7 (BSIT-IT31S4, TIP Quezon City)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -9,8 +9,15 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+The above copyright notice, this permission notice, and the following academic
+disclaimer shall be included in all copies or substantial portions of the Software.
+
+ACADEMIC DISCLAIMER:
+Academic prototype only. TapTignan is an educational research project for
+IT 021 Usable Security at TIP Quezon City. It is not affiliated with,
+sponsored by, or endorsed by Mynt, Globe Telecom, or G-Xchange Inc.
+All data, merchant entries, and transactions are strictly simulated for
+educational and usability evaluation purposes.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,

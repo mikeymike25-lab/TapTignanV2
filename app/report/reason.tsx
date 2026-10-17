@@ -50,6 +50,8 @@ export default function ReportReasonScreen() {
   const { createReport } = useReportStore();
 
   const [selectedReason, setSelectedReason] = useState<ReportReason | null>(null);
+  const [targetName, setTargetName] = useState('');
+  const [targetDetails, setTargetDetails] = useState('');
   const [details, setDetails] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -57,12 +59,24 @@ export default function ReportReasonScreen() {
     if (!selectedReason) return;
     setIsSubmitting(true);
 
+    const finalRecipient =
+      currentRequest?.recipientName ||
+      currentRequest?.merchantName ||
+      targetName.trim() ||
+      'Suspicious QR / Sticker';
+
+    const finalRawQr = currentRequest?.qr.raw || targetDetails.trim() || undefined;
+    const finalAccountId =
+      currentRequest?.qr.accountId ||
+      (targetDetails.includes(':') ? targetDetails.split(':')[2] : undefined);
+
     const report = createReport({
       reason: selectedReason,
       details: details.trim() || undefined,
       paymentId: currentRequest?.id,
-      rawQr: currentRequest?.qr.raw,
-      recipientName: currentRequest?.recipientName || currentRequest?.merchantName,
+      rawQr: finalRawQr,
+      accountId: finalAccountId,
+      recipientName: finalRecipient,
     });
 
     setIsSubmitting(false);
@@ -79,6 +93,43 @@ export default function ReportReasonScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {/* Target Info Banner */}
+          {currentRequest ? (
+            <View style={styles.targetBanner}>
+              <Ionicons name="scan" size={20} color="#dc2626" />
+              <View style={styles.targetBannerText}>
+                <Text style={styles.targetLabel}>Target Entity</Text>
+                <Text style={styles.targetValue}>
+                  {currentRequest.merchantName || currentRequest.recipientName}
+                </Text>
+                <Text style={styles.targetRaw} numberOfLines={1}>
+                  {currentRequest.qr.raw}
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <Card style={styles.directReportCard}>
+              <Text style={styles.directReportTitle}>Scammer / Target Information</Text>
+              <Text style={styles.inputSubLabel}>Suspect Name or Store Displayed</Text>
+              <TextInput
+                style={styles.singleLineInput}
+                placeholder="e.g. Fake Fruit Stand / Juan Dela Cruz"
+                placeholderTextColor="#94a3b8"
+                value={targetName}
+                onChangeText={setTargetName}
+              />
+
+              <Text style={styles.inputSubLabel}>Suspect Phone Number or QR String</Text>
+              <TextInput
+                style={styles.singleLineInput}
+                placeholder="e.g. +63 999 123 4567 or TAPTIGNAN:PAY:..."
+                placeholderTextColor="#94a3b8"
+                value={targetDetails}
+                onChangeText={setTargetDetails}
+              />
+            </Card>
+          )}
+
           {/* Header instructions */}
           <Text style={styles.subtitle}>{COPY.report.subtitle}</Text>
           <Text style={styles.questionTitle}>{COPY.report.reasonQuestion}</Text>
@@ -158,6 +209,66 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 18,
     paddingBottom: 28,
+  },
+  targetBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#fff5f5',
+    borderWidth: 1.5,
+    borderColor: '#fecaca',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
+  },
+  targetBannerText: {
+    flex: 1,
+  },
+  targetLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#dc2626',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  targetValue: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginTop: 2,
+  },
+  targetRaw: {
+    fontSize: 11.5,
+    color: '#64748b',
+    marginTop: 2,
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+  directReportCard: {
+    padding: 16,
+    marginBottom: 16,
+  },
+  directReportTitle: {
+    fontSize: 14.5,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: 12,
+  },
+  inputSubLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#475569',
+    marginTop: 8,
+    marginBottom: 6,
+  },
+  singleLineInput: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 13.5,
+    color: '#0a1e4a',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   subtitle: {
     fontSize: 13,

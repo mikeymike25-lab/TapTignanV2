@@ -1,11 +1,11 @@
-# TapTignan
+# TapTignan [Academic Prototype - Non-Affiliated]
 
 **A Pre-Payment Verification and Reporting Interface for Filipino Mobile Wallet Users**
 
-IT 021 – Usable Security · Security Designer Group Project
-Group 7 · BSIT-IT31S4 · Technological Institute of the Philippines, Quezon City
+IT 021 – Usable Security · Security Designer Group Project  
+Group 7 · BSIT-IT31S4 · Technological Institute of the Philippines, Quezon City  
 
-> ⚠️ **Academic prototype.** TapTignan is a student project that redesigns a QR-payment flow inside a GCash-style interface. It is **not affiliated with GCash/Mynt**, performs **no real payments**, and uses **mock data only**.
+> ⚠️ **Academic prototype only.** TapTignan is an educational research project for IT 021 Usable Security at TIP Quezon City. It is not affiliated with, sponsored by, or endorsed by Mynt, Globe Telecom, or G-Xchange Inc. All data and transactions are simulated.
 
 ---
 

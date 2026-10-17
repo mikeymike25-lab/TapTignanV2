@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   Dimensions,
   Image,
   NativeScrollEvent,
@@ -15,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { ProtectionBanner } from '@/components/taptignan/ProtectionBanner';
+import { useAuthStore } from '@/features/auth/useAuthStore';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_MARGIN = 12;
@@ -45,6 +47,7 @@ const SERVICES: ServiceItem[] = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { isDuressMode, decoyBalance } = useAuthStore();
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
   const bannerScrollRef = useRef<ScrollView>(null);
@@ -128,7 +131,11 @@ export default function HomeScreen() {
             <View style={styles.balanceAmountRow}>
               <Text style={styles.pesoSymbol}>₱</Text>
               <Text style={styles.balanceNumber}>
-                {isBalanceVisible ? '100,367' : '••••••'}
+                {isBalanceVisible
+                  ? isDuressMode
+                    ? decoyBalance.toFixed(2)
+                    : '100,367'
+                  : '••••••'}
               </Text>
             </View>
 
@@ -137,6 +144,19 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Bantay-Pera Duress Academic Notice (Visible only in Duress Mode) */}
+        {isDuressMode && (
+          <View style={styles.duressBanner}>
+            <View style={styles.duressHeaderRow}>
+              <Ionicons name="shield-half" size={18} color="#d97706" />
+              <Text style={styles.duressTitle}>Bantay-Pera Duress Shield Active</Text>
+            </View>
+            <Text style={styles.duressSubtitle}>
+              Decoy wallet active (₱48.50). Real funds (₱100,367.00) are safely protected from physical coercion.
+            </Text>
+          </View>
+        )}
 
         {/* TapTignan Protection Status Banner (FR-01) */}
         <ProtectionBanner />
@@ -148,7 +168,17 @@ export default function HomeScreen() {
               key={item.id}
               style={styles.gridItem}
               activeOpacity={0.75}
-              onPress={() => router.push('/(tabs)/scan')}
+              onPress={() => {
+                if (isDuressMode && (item.id === 'send' || item.id === 'transfer')) {
+                  Alert.alert(
+                    'Balance Insufficient',
+                    'Your available balance (₱48.50) is insufficient for this transfer.\n\n(Bantay-Pera Coercion Protection)',
+                    [{ text: 'OK' }]
+                  );
+                  return;
+                }
+                router.push('/(tabs)/scan');
+              }}
             >
               <View style={styles.iconContainer}>
                 <Image
@@ -347,6 +377,31 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
+  },
+  duressBanner: {
+    backgroundColor: '#fffbeb',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#fde68a',
+    marginHorizontal: 18,
+    marginTop: 12,
+    padding: 12,
+  },
+  duressHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  duressTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#92400e',
+  },
+  duressSubtitle: {
+    fontSize: 12,
+    color: '#b45309',
+    lineHeight: 16,
   },
   cashInText: {
     color: '#0073f6',

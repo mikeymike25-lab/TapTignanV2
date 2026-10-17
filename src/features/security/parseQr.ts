@@ -23,11 +23,11 @@ export function parseQr(raw: string): QrPayload {
 
   // Check for TAPTIGNAN standard demo format:
   // TAPTIGNAN:PAY:<accountId>:<merchantName>:<amount>
-  if (trimmed.startsWith('TAPTIGNAN:PAY:')) {
+  if (trimmed.toUpperCase().startsWith('TAPTIGNAN:PAY:')) {
     const parts = trimmed.split(':');
-    const accountId = parts[2] || undefined;
-    const merchantName = parts[3] || undefined;
-    const amountStr = parts[4] || undefined;
+    const accountId = parts[2]?.trim() || undefined;
+    const merchantName = parts[3]?.trim() || undefined;
+    const amountStr = parts[4]?.trim() || undefined;
     const amount = amountStr ? parseFloat(amountStr) : undefined;
 
     return {

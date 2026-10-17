@@ -65,14 +65,15 @@ All rules run inside `evaluatePayment()`. Each returns a `Finding` (passed or fa
 
 > **R-07 caveat:** verify field layout and CRC method against the official QR Ph specification before implementing. If uncertain, skip it — don't present guessed validation as real.
 
-### Verdict logic
+### Verdict logic (3-Tier Usable Security System — Decision D-3)
 
 ```
-if any failed finding is HIGH or MEDIUM   → Suspicious
-else                                      → Safe   (LOW failures are shown as notes only)
+if any failed finding is HIGH (URL embedded, name mismatch, invalid format, reported) → Suspicious (Red)
+else if recipient is a personal GCash account / micro-merchant (R-04)               → Caution (Amber)
+else                                                                                  → Safe (Green)
 ```
 
-Keep logic this simple on purpose: it's explainable in a defense and every outcome traces to a visible finding. If the team later wants a middle "Caution" level, that's decision D-3 in `REQUIREMENTS.md` — not part of the MVP.
+**Why 3 tiers?** In the Philippines, over 80% of daily QR transactions occur at sari-sari stores, tricycle terminals, and street vendors using personal P2P GCash accounts. If personal accounts are flagged as "Suspicious" (red), users experience severe **warning fatigue** and learn to dismiss all alerts. The **Caution** level validates legitimate micro-merchants while providing an actionable verbal check (*"Kayo po ba si [Name]?"*) before payment.
 
 ### Demo scenarios (fixtures)
 

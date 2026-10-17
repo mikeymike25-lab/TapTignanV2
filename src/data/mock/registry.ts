@@ -37,14 +37,41 @@ export const MOCK_REGISTRY: RegistryEntry[] = [
     city: 'Taguig City',
     isVerified: false,
   },
+  {
+    accountId: 'MS-88341',
+    name: 'Maria Santos',
+    registeredName: 'Maria Santos',
+    type: 'personal',
+    phoneNumber: '+63 918 987 6543',
+    city: 'Makati City',
+    isVerified: false,
+  },
+  {
+    accountId: 'RN-33210',
+    name: 'Ate Rose Sari-Sari Store',
+    registeredName: 'Rosemarie Natividad',
+    type: 'personal',
+    phoneNumber: '+63 928 555 7890',
+    city: 'Quezon City',
+    isVerified: false,
+  },
 ];
 
-export function findRegistryEntry(accountIdOrName: string): RegistryEntry | undefined {
-  const query = accountIdOrName.trim().toLowerCase();
-  return MOCK_REGISTRY.find(
-    (entry) =>
-      entry.accountId.toLowerCase() === query ||
-      entry.name.toLowerCase() === query ||
-      entry.registeredName.toLowerCase() === query
-  );
+export function findRegistryEntry(accountIdOrNameOrPhone: string): RegistryEntry | undefined {
+  if (!accountIdOrNameOrPhone) return undefined;
+  const rawQuery = accountIdOrNameOrPhone.trim().toLowerCase();
+  const normalizedQuery = rawQuery.replace(/[\s-]/g, '');
+  return MOCK_REGISTRY.find((entry) => {
+    const entryId = entry.accountId.toLowerCase().replace(/[\s-]/g, '');
+    const entryName = entry.name.toLowerCase();
+    const entryReg = entry.registeredName.toLowerCase();
+    const entryPhone = entry.phoneNumber.toLowerCase().replace(/[\s-]/g, '');
+
+    return (
+      rawQuery === entryName ||
+      rawQuery === entryReg ||
+      normalizedQuery === entryId ||
+      normalizedQuery === entryPhone
+    );
+  });
 }

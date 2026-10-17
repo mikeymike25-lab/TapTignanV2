@@ -11,12 +11,16 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { Card } from '@/components/ui/Card';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
+import { useAuthStore } from '@/features/auth/useAuthStore';
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const { demoMode, protectionEnabled, toggleDemoMode, toggleProtection, resetDemoData } =
     useSettingsStore();
+  const { user, logout } = useAuthStore();
 
   const handleReset = () => {
     Alert.alert(
@@ -49,11 +53,11 @@ export default function ProfileScreen() {
         {/* User Card */}
         <Card style={styles.userCard}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>JD</Text>
+            <Text style={styles.avatarText}>{user.initials}</Text>
           </View>
           <View style={styles.userInfo}>
-            <Text style={styles.userName}>Juan Dela Cruz</Text>
-            <Text style={styles.userPhone}>+63 908 *** 6789</Text>
+            <Text style={styles.userName}>{user.name}</Text>
+            <Text style={styles.userPhone}>{user.maskedPhone}</Text>
             <View style={styles.verifiedBadge}>
               <Ionicons name="checkmark-circle" size={14} color="#16a34a" />
               <Text style={styles.verifiedText}>Fully Verified Account</Text>
@@ -114,6 +118,34 @@ export default function ProfileScreen() {
         <Text style={styles.sectionHeader}>Testing & Session Management</Text>
 
         <Card style={styles.settingsCard}>
+          {/* Lock App / Log Out */}
+          <TouchableOpacity
+            style={styles.resetButtonRow}
+            onPress={() => {
+              logout();
+              router.replace('/auth/login');
+            }}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingLeft}>
+              <View style={[styles.settingIconWrap, { backgroundColor: '#eff6ff' }]}>
+                <Ionicons name="lock-closed-outline" size={20} color="#0073f6" />
+              </View>
+              <View style={styles.settingTextWrap}>
+                <Text style={[styles.settingTitle, { color: '#0073f6' }]}>
+                  Lock App / Log Out
+                </Text>
+                <Text style={styles.settingDesc}>
+                  Locks the wallet and returns to the GCash MPIN login screen
+                </Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#94a3b8" />
+          </TouchableOpacity>
+
+          <View style={styles.rowDivider} />
+
+          {/* Reset Demo Data */}
           <TouchableOpacity
             style={styles.resetButtonRow}
             onPress={handleReset}
@@ -136,9 +168,16 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </Card>
 
-        {/* Academic Project Info */}
+        {/* Academic Project Info & Disclaimer */}
         <Card style={styles.academicCard}>
-          <Text style={styles.academicTitle}>About TapTignan Project</Text>
+          <View style={styles.academicHeaderRow}>
+            <Ionicons name="school-outline" size={20} color="#0073f6" />
+            <Text style={styles.academicTitle}>Academic Prototype Notice</Text>
+          </View>
+          <Text style={styles.academicDisclaimer}>
+            Academic prototype only. TapTignan is an educational research project for IT 021 Usable Security at TIP Quezon City. It is not affiliated with, sponsored by, or endorsed by Mynt, Globe Telecom, or G-Xchange Inc. All data and transactions are simulated.
+          </Text>
+          <View style={styles.academicMetaDivider} />
           <Text style={styles.academicBody}>
             IT 021 Usable Security • Group 7 • BSIT-IT31S4{'\n'}
             Technological Institute of the Philippines, Quezon City{'\n'}
@@ -280,16 +319,33 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#ffffff',
     borderColor: '#e2e8f0',
+    marginBottom: 16,
+  },
+  academicHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
   },
   academicTitle: {
-    fontSize: 13.5,
+    fontSize: 14,
     fontWeight: '800',
     color: '#0a1e4a',
-    marginBottom: 4,
+  },
+  academicDisclaimer: {
+    fontSize: 12,
+    color: '#475569',
+    lineHeight: 18,
+    fontStyle: 'italic',
+  },
+  academicMetaDivider: {
+    height: 1,
+    backgroundColor: '#f1f5f9',
+    marginVertical: 10,
   },
   academicBody: {
-    fontSize: 12,
+    fontSize: 11.5,
     color: '#64748b',
-    lineHeight: 18,
+    lineHeight: 17,
   },
 });

@@ -1,4 +1,4 @@
-export type Verdict = 'safe' | 'suspicious';
+export type Verdict = 'safe' | 'caution' | 'suspicious';
 export type Severity = 'high' | 'medium' | 'low';
 
 export interface QrPayload {
@@ -50,6 +50,7 @@ export interface Report {
   id: string;
   paymentId?: string;
   rawQr?: string;
+  accountId?: string;
   recipientName?: string;
   reason: ReportReason;
   details?: string;

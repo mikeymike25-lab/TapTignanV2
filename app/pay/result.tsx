@@ -38,6 +38,8 @@ export default function ResultScreen() {
   }
 
   const isSafe = checkResult.verdict === 'safe';
+  const isCaution = checkResult.verdict === 'caution';
+  const isSuspicious = checkResult.verdict === 'suspicious';
 
   const handleContinuePayment = () => {
     const tx = completePayment();
@@ -64,8 +66,8 @@ export default function ResultScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       <Header
         title="Verification Result"
-        onBack={isSafe ? handleCancelPayment : undefined}
-        showBack={isSafe}
+        onBack={!isSuspicious ? handleCancelPayment : undefined}
+        showBack={!isSuspicious}
       />
 
       <ScrollView
@@ -73,36 +75,97 @@ export default function ResultScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Verdict Hero Banner (FR-07: icon + color + text, never color alone) */}
-        <View style={[styles.verdictHero, isSafe ? styles.heroSafe : styles.heroSuspicious]}>
+        <View
+          style={[
+            styles.verdictHero,
+            isSafe
+              ? styles.heroSafe
+              : isCaution
+                ? styles.heroCaution
+                : styles.heroSuspicious,
+          ]}
+        >
           <View style={styles.verdictTopRow}>
             <View
               style={[
                 styles.verdictIconWrap,
-                isSafe ? styles.iconWrapSafe : styles.iconWrapSuspicious,
+                isSafe
+                  ? styles.iconWrapSafe
+                  : isCaution
+                    ? styles.iconWrapCaution
+                    : styles.iconWrapSuspicious,
               ]}
             >
               <Ionicons
-                name={isSafe ? 'shield-checkmark' : 'alert-circle'}
+                name={
+                  isSafe
+                    ? 'shield-checkmark'
+                    : isCaution
+                      ? 'warning'
+                      : 'alert-circle'
+                }
                 size={34}
-                color={isSafe ? '#16a34a' : '#dc2626'}
+                color={
+                  isSafe
+                    ? '#16a34a'
+                    : isCaution
+                      ? '#d97706'
+                      : '#dc2626'
+                }
               />
             </View>
             <View style={styles.verdictHeaderWrap}>
-              <StatusBadge type={isSafe ? 'safe' : 'suspicious'} size="lg" />
+              <StatusBadge
+                type={isSafe ? 'safe' : isCaution ? 'caution' : 'suspicious'}
+                size="lg"
+              />
               <Text style={styles.verdictTitle}>
-                {isSafe ? COPY.result.safeTitle : COPY.result.suspiciousTitle}
+                {isSafe
+                  ? COPY.result.safeTitle
+                  : isCaution
+                    ? COPY.result.cautionTitle
+                    : COPY.result.suspiciousTitle}
               </Text>
             </View>
           </View>
 
           <Text style={styles.verdictSubtitle}>
-            {isSafe ? COPY.result.safeSubtitle : COPY.result.suspiciousSubtitle}
+            {isSafe
+              ? COPY.result.safeSubtitle
+              : isCaution
+                ? COPY.result.cautionSubtitle
+                : COPY.result.suspiciousSubtitle}
           </Text>
 
           <Text style={styles.verdictNotice}>
-            {isSafe ? COPY.result.safeNotice : COPY.result.suspiciousNotice}
+            {isSafe
+              ? COPY.result.safeNotice
+              : isCaution
+                ? COPY.result.cautionNotice
+                : COPY.result.suspiciousNotice}
           </Text>
         </View>
+
+        {/* Usable Security Verbal Check Nudge for Caution / Micro-Merchants */}
+        {isCaution && (
+          <View style={styles.verbalNudgeCard}>
+            <View style={styles.verbalNudgeHeader}>
+              <Ionicons name="chatbubbles-outline" size={20} color="#b45309" />
+              <Text style={styles.verbalNudgeTitle}>Usable Security Verbal Check</Text>
+            </View>
+            <Text style={styles.verbalNudgeDesc}>
+              {COPY.result.cautionVerbalPrompt}
+            </Text>
+            <View style={styles.verbalQuoteBox}>
+              <Text style={styles.verbalQuoteText}>
+                {COPY.result.cautionVerbalQuestion.replace(
+                  '{name}',
+                  currentRequest.recipientName
+                )}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {/* Transaction Summary Card */}
         <Card style={styles.summaryCard}>
@@ -116,7 +179,7 @@ export default function ResultScreen() {
             label="Actual Recipient"
             value={currentRequest.recipientName}
             valueColor={
-              !isSafe &&
+              isSuspicious &&
               currentRequest.merchantName.toLowerCase() !==
                 currentRequest.recipientName.toLowerCase()
                 ? '#dc2626'
@@ -154,7 +217,9 @@ export default function ResultScreen() {
           >
             <Ionicons name="help-circle-outline" size={16} color="#64748b" />
             <Text style={styles.incorrectFlagText}>
-              Is this a legitimate merchant? Report incorrect flagging
+              {isCaution
+                ? 'Is this an accredited business merchant? Report incorrect flagging'
+                : 'Is this a legitimate merchant? Report incorrect flagging'}
             </Text>
           </TouchableOpacity>
         )}
@@ -177,6 +242,32 @@ export default function ResultScreen() {
               size="md"
               onPress={handleReport}
             />
+          </>
+        ) : isCaution ? (
+          <>
+            <Button
+              title={`${COPY.result.ctaCautionPay} ₱${currentRequest.amount.toFixed(2)}`}
+              variant="primary"
+              size="lg"
+              onPress={handleContinuePayment}
+              style={styles.fullBtn}
+            />
+            <View style={styles.suspiciousSecondaryRow}>
+              <Button
+                title={COPY.result.ctaCancel}
+                variant="outline"
+                size="md"
+                onPress={handleCancelPayment}
+                style={styles.halfBtn}
+              />
+              <Button
+                title={COPY.result.ctaReport}
+                variant="ghost"
+                size="md"
+                onPress={handleReport}
+                style={styles.halfBtn}
+              />
+            </View>
           </>
         ) : (
           <>
@@ -269,6 +360,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0fdf4',
     borderColor: '#86efac',
   },
+  heroCaution: {
+    backgroundColor: '#fffbeb',
+    borderColor: '#fcd34d',
+  },
   heroSuspicious: {
     backgroundColor: '#fff5f5',
     borderColor: '#fca5a5',
@@ -288,8 +383,49 @@ const styles = StyleSheet.create({
   iconWrapSafe: {
     backgroundColor: '#dcfce7',
   },
+  iconWrapCaution: {
+    backgroundColor: '#fef3c7',
+  },
   iconWrapSuspicious: {
     backgroundColor: '#fee2e2',
+  },
+  verbalNudgeCard: {
+    backgroundColor: '#fffbeb',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#fde68a',
+    padding: 14,
+    marginBottom: 16,
+  },
+  verbalNudgeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  verbalNudgeTitle: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#b45309',
+  },
+  verbalNudgeDesc: {
+    fontSize: 12,
+    color: '#78350f',
+    marginBottom: 8,
+  },
+  verbalQuoteBox: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#d97706',
+  },
+  verbalQuoteText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#92400e',
+    fontStyle: 'italic',
   },
   verdictHeaderWrap: {
     flex: 1,

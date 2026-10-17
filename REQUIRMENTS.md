@@ -95,5 +95,5 @@ Fill the **Evidence** and **Result** columns as testing progresses.
 |---|----------|---------|-------|----------|
 | D-1 | Can users proceed after a Suspicious result? — **needed before Result screens (plan 4.3)** | (a) No — cancel/report only · (b) Yes, after extra confirm | Rabanzo / Sabino | _TBD_ |
 | D-2 | Bottom-nav labels — **needed before app setup (plan 3.3)** | Home · Activity · QR · Settings (recommended) vs. Home · Inbox · QR · Profile | Salamat | _TBD_ |
-| D-3 | Two verdict levels or three (add *Caution*)? | Two (current design) vs. three | Rabanzo | _TBD_ |
+| D-3 | Two verdict levels or three (add *Caution*)? | Two vs. three (Safe · Caution · Suspicious) | Rabanzo / Salamat | **Decided: Three levels** — Prevents warning fatigue on legitimate sari-sari stores & personal GCash micro-merchants while keeping high-risk red warnings effective. |
 | D-4 | Report lifecycle simulation | Auto-resolve after N seconds vs. hidden dev toggle | Quiambao | _TBD_ |
